@@ -1,6 +1,8 @@
 import { createApp, h, watchEffect } from 'vue'
 import { Repl, ReplStore } from '../src'
-;(window as any).process = { env: {} }
+;
+
+(window as any).process = { env: {} }
 
 const App = {
   setup() {
@@ -14,7 +16,7 @@ const App = {
         : `${location.origin}/src/vue-dev-proxy`,
       defaultVueServerRendererURL: import.meta.env.PROD
         ? undefined
-        : `${location.origin}/src/vue-server-renderer-dev-proxy`
+        : `${location.origin}/src/vue-server-renderer-dev-proxy`,
     })
 
     watchEffect(() => history.replaceState({}, '', store.serialize()))
@@ -42,12 +44,12 @@ const App = {
         sfcOptions: {
           script: {
             // inlineTemplate: false
-          }
-        }
+          },
+        },
         // showCompileOutput: false,
         // showImportMap: false
       })
-  }
+  },
 }
 
 createApp(App).mount('#app')

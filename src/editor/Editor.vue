@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import FileSelector from './FileSelector.vue'
+import { computed, inject } from 'vue'
 import CodeMirror from '../codemirror/CodeMirror.vue'
 import Message from '../Message.vue'
 import { debounce } from '../utils'
-import { computed, inject } from 'vue'
-import { Store } from '../store'
+import type { Store } from '../store'
+import FileSelector from './FileSelector.vue'
 
 const store = inject('store') as Store
 
@@ -17,8 +17,8 @@ const activeMode = computed(() => {
   return filename.endsWith('.vue') || filename.endsWith('.html')
     ? 'htmlmixed'
     : filename.endsWith('.css')
-    ? 'css'
-    : 'javascript'
+      ? 'css'
+      : 'javascript'
 })
 </script>
 
@@ -26,9 +26,9 @@ const activeMode = computed(() => {
   <FileSelector />
   <div class="editor-container">
     <CodeMirror
-      @change="onChange"
       :value="store.state.activeFile.code"
       :mode="activeMode"
+      @change="onChange"
     />
     <Message :err="store.state.errors[0]" />
   </div>

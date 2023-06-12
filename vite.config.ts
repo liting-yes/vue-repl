@@ -1,4 +1,5 @@
-import { defineConfig, Plugin } from 'vite'
+import type { Plugin } from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
 const genStub: Plugin = {
@@ -8,9 +9,9 @@ const genStub: Plugin = {
     this.emitFile({
       type: 'asset',
       fileName: 'ssr-stub.js',
-      source: `module.exports = {}`
+      source: 'module.exports = {}',
     })
-  }
+  },
 }
 
 export default defineConfig({
@@ -21,10 +22,10 @@ export default defineConfig({
     lib: {
       entry: './src/index.ts',
       formats: ['es'],
-      fileName: () => 'vue-repl.js'
+      fileName: () => 'vue-repl.js',
     },
     rollupOptions: {
-      external: ['vue', 'vue/compiler-sfc']
-    }
-  }
+      external: ['vue', 'vue/compiler-sfc'],
+    },
+  },
 })

@@ -1,13 +1,14 @@
-import { version, reactive, watchEffect } from 'vue'
+import { reactive, version, watchEffect } from 'vue'
 import * as defaultCompiler from 'vue/compiler-sfc'
-import { compileFile } from './transform'
-import { utoa, atou } from './utils'
-import {
-  SFCScriptCompileOptions,
+import type {
   SFCAsyncStyleCompileOptions,
-  SFCTemplateCompileOptions
+  SFCScriptCompileOptions,
+  SFCTemplateCompileOptions,
 } from 'vue/compiler-sfc'
-import { OutputModes } from './output/types'
+import consola from 'consola'
+import { compileFile } from './transform'
+import { atou, utoa } from './utils'
+import type { OutputModes } from './output/types'
 
 const defaultMainFile = 'App.vue'
 
@@ -31,7 +32,7 @@ export class File {
   compiled = {
     js: '',
     css: '',
-    ssr: ''
+    ssr: '',
   }
 
   constructor(filename: string, code = '', hidden = false) {
@@ -98,18 +99,18 @@ export class ReplStore implements Store {
     defaultVueRuntimeURL = `https://unpkg.com/@vue/runtime-dom@${version}/dist/runtime-dom.esm-browser.js`,
     defaultVueServerRendererURL = `https://unpkg.com/@vue/server-renderer@${version}/dist/server-renderer.esm-browser.js`,
     showOutput = false,
-    outputMode = 'preview'
+    outputMode = 'preview',
   }: StoreOptions = {}) {
     let files: StoreState['files'] = {}
 
     if (serializedState) {
       const saved = JSON.parse(atou(serializedState))
-      for (const filename in saved) {
+      for (const filename in saved)
         files[filename] = new File(filename, saved[filename])
-      }
-    } else {
+    }
+    else {
       files = {
-        [defaultMainFile]: new File(defaultMainFile, welcomeCode)
+        [defaultMainFile]: new File(defaultMainFile, welcomeCode),
       }
     }
 
@@ -119,9 +120,9 @@ export class ReplStore implements Store {
     this.initialOutputMode = outputMode as OutputModes
 
     let mainFile = defaultMainFile
-    if (!files[mainFile]) {
+    if (!files[mainFile])
       mainFile = Object.keys(files)[0]
-    }
+
     this.state = reactive({
       mainFile,
       files,
@@ -129,7 +130,7 @@ export class ReplStore implements Store {
       errors: [],
       vueRuntimeURL: this.defaultVueRuntimeURL,
       vueServerRendererURL: this.defaultVueServerRendererURL,
-      resetFlip: true
+      resetFlip: true,
     })
 
     this.initImportMap()
@@ -139,9 +140,8 @@ export class ReplStore implements Store {
   init() {
     watchEffect(() => compileFile(this, this.state.activeFile))
     for (const file in this.state.files) {
-      if (file !== defaultMainFile) {
+      if (file !== defaultMainFile)
         compileFile(this, this.state.files[file])
-      }
     }
   }
 
@@ -150,19 +150,20 @@ export class ReplStore implements Store {
   }
 
   addFile(fileOrFilename: string | File): void {
-    const file =
-      typeof fileOrFilename === 'string'
+    const file
+      = typeof fileOrFilename === 'string'
         ? new File(fileOrFilename)
         : fileOrFilename
     this.state.files[file.filename] = file
-    if (!file.hidden) this.setActive(file.filename)
+    if (!file.hidden)
+      this.setActive(file.filename)
   }
 
   deleteFile(filename: string) {
     if (confirm(`Are you sure you want to delete ${filename}?`)) {
-      if (this.state.activeFile.filename === filename) {
+      if (this.state.activeFile.filename === filename)
         this.state.activeFile = this.state.files[this.state.mainFile]
-      }
+
       delete this.state.files[filename]
     }
   }
@@ -172,40 +173,39 @@ export class ReplStore implements Store {
     const importMap = files['import-map.json']
     if (importMap) {
       const { imports } = JSON.parse(importMap)
-      if (imports['vue'] === this.defaultVueRuntimeURL) {
-        delete imports['vue']
-      }
-      if (imports['vue/server-renderer'] === this.defaultVueServerRendererURL) {
+      if (imports.vue === this.defaultVueRuntimeURL)
+        delete imports.vue
+
+      if (imports['vue/server-renderer'] === this.defaultVueServerRendererURL)
         delete imports['vue/server-renderer']
-      }
-      if (!Object.keys(imports).length) {
+
+      if (!Object.keys(imports).length)
         delete files['import-map.json']
-      } else {
+      else
         files['import-map.json'] = JSON.stringify({ imports }, null, 2)
-      }
     }
-    return '#' + utoa(JSON.stringify(files))
+    return `#${utoa(JSON.stringify(files))}`
   }
 
   getFiles() {
     const exported: Record<string, string> = {}
-    for (const filename in this.state.files) {
+    for (const filename in this.state.files)
       exported[filename] = this.state.files[filename].code
-    }
+
     return exported
   }
 
   async setFiles(newFiles: Record<string, string>, mainFile = defaultMainFile) {
     const files: Record<string, File> = {}
-    if (mainFile === defaultMainFile && !newFiles[mainFile]) {
+    if (mainFile === defaultMainFile && !newFiles[mainFile])
       files[mainFile] = new File(mainFile, welcomeCode)
-    }
-    for (const filename in newFiles) {
+
+    for (const filename in newFiles)
       files[filename] = new File(filename, newFiles[filename])
-    }
-    for (const file in files) {
+
+    for (const file in files)
       await compileFile(this, files[file])
-    }
+
     this.state.mainFile = mainFile
     this.state.files = files
     this.initImportMap()
@@ -225,40 +225,44 @@ export class ReplStore implements Store {
         JSON.stringify(
           {
             imports: {
-              vue: this.defaultVueRuntimeURL,
-              'vue/server-renderer': this.defaultVueServerRendererURL
-            }
+              'vue': this.defaultVueRuntimeURL,
+              'vue/server-renderer': this.defaultVueServerRendererURL,
+            },
           },
           null,
-          2
-        )
+          2,
+        ),
       )
-    } else {
+    }
+    else {
       try {
         const json = JSON.parse(map.code)
-        if (!json.imports.vue) {
+        if (!json.imports.vue)
           json.imports.vue = this.defaultVueRuntimeURL
-        } else {
+        else
           json.imports.vue = fixURL(json.imports.vue)
-        }
+
         if (!json.imports['vue/server-renderer']) {
           json.imports['vue/server-renderer'] = this.defaultVueServerRendererURL
-        } else {
+        }
+        else {
           json.imports['vue/server-renderer'] = fixURL(
-            json.imports['vue/server-renderer']
+            json.imports['vue/server-renderer'],
           )
         }
         map.code = JSON.stringify(json, null, 2)
-      } catch (e) {}
+      }
+      catch (e) { }
     }
   }
 
   getImportMap() {
     try {
       return JSON.parse(this.state.files['import-map.json'].code)
-    } catch (e) {
+    }
+    catch (e) {
       this.state.errors = [
-        `Syntax error in import-map.json: ${(e as Error).message}`
+        `Syntax error in import-map.json: ${(e as Error).message}`,
       ]
       return {}
     }
@@ -287,7 +291,7 @@ export class ReplStore implements Store {
     imports['vue/server-renderer'] = ssrUrl
     this.setImportMap(importMap)
     this.forceSandboxReset()
-    console.info(`[@vue/repl] Now using Vue version: ${version}`)
+    consola.info(`[@vue/repl] Now using Vue version: ${version}`)
   }
 
   resetVueVersion() {
@@ -301,7 +305,7 @@ export class ReplStore implements Store {
     imports['vue/server-renderer'] = this.defaultVueServerRendererURL
     this.setImportMap(importMap)
     this.forceSandboxReset()
-    console.info(`[@vue/repl] Now using default Vue version`)
+    consola.info('[@vue/repl] Now using default Vue version')
   }
 }
 

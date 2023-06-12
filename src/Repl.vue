@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { provide, toRef } from 'vue'
 import SplitPane from './SplitPane.vue'
 import Editor from './editor/Editor.vue'
 import Output from './output/Output.vue'
-import { Store, ReplStore, SFCOptions } from './store'
-import { provide, toRef } from 'vue'
+import type { SFCOptions, Store } from './store'
+import { ReplStore } from './store'
 
 export interface Props {
   store?: Store
@@ -22,24 +23,26 @@ const props = withDefaults(defineProps<Props>(), {
   showCompileOutput: true,
   showImportMap: true,
   clearConsole: true,
-  ssr: false
+  ssr: false,
 })
 
 const { store } = props
 const sfcOptions = (store.options = props.sfcOptions || {})
-if (!sfcOptions.script) {
+if (!sfcOptions.script)
   sfcOptions.script = {}
-}
-// @ts-ignore only needed in 3.3
+
+// @ts-expect-error only needed in 3.3
 sfcOptions.script.fs = {
   fileExists(file: string) {
-    if (file.startsWith('/')) file = file.slice(1)
+    if (file.startsWith('/'))
+      file = file.slice(1)
     return !!store.state.files[file]
   },
   readFile(file: string) {
-    if (file.startsWith('/')) file = file.slice(1)
+    if (file.startsWith('/'))
+      file = file.slice(1)
     return store.state.files[file].code
-  }
+  },
 }
 
 store.init()
@@ -58,7 +61,7 @@ provide('clear-console', toRef(props, 'clearConsole'))
       </template>
       <template #right>
         <Output
-          :showCompileOutput="props.showCompileOutput"
+          :show-compile-output="props.showCompileOutput"
           :ssr="!!props.ssr"
         />
       </template>

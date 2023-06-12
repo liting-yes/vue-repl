@@ -1,9 +1,5 @@
-<template>
-  <div class="editor" ref="el"></div>
-</template>
-
 <script setup lang="ts">
-import { ref, onMounted, watchEffect, inject } from 'vue'
+import { inject, onMounted, ref, watchEffect } from 'vue'
 import { debounce } from '../utils'
 import CodeMirror from './codemirror'
 
@@ -16,7 +12,7 @@ export interface Props {
 const props = withDefaults(defineProps<Props>(), {
   mode: 'htmlmixed',
   value: '',
-  readonly: false
+  readonly: false,
 })
 
 const emit = defineEmits<(e: 'change', value: string) => void>()
@@ -29,7 +25,7 @@ onMounted(() => {
     autoCloseBrackets: true,
     autoCloseTags: true,
     foldGutter: true,
-    gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter']
+    gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
   }
 
   const editor = CodeMirror(el.value!, {
@@ -39,7 +35,7 @@ onMounted(() => {
     tabSize: 2,
     lineWrapping: true,
     lineNumbers: true,
-    ...addonOptions
+    ...addonOptions,
   })
 
   editor.on('change', () => {
@@ -48,9 +44,8 @@ onMounted(() => {
 
   watchEffect(() => {
     const cur = editor.getValue()
-    if (props.value !== cur) {
+    if (props.value !== cur)
       editor.setValue(props.value)
-    }
   })
 
   watchEffect(() => {
@@ -66,11 +61,15 @@ onMounted(() => {
       'resize',
       debounce(() => {
         editor.refresh()
-      })
+      }),
     )
   }
 })
 </script>
+
+<template>
+  <div ref="el" class="editor" />
+</template>
 
 <style>
 .editor {
