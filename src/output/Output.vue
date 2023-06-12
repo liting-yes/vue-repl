@@ -12,9 +12,13 @@ const props = defineProps<{
 
 const store = inject('store') as Store
 const modes = computed(() =>
-  props.showCompileOutput
-    ? (['preview', 'js', 'css', 'ssr'] as const)
-    : (['preview'] as const)
+   {
+    const tabs = props.ssr ? (['preview', 'js', 'css', 'ssr'] as const) : (['preview', 'js', 'css'] as const) 
+    return props.showCompileOutput
+      ? tabs
+      : (['preview'] as const)
+   }
+
 )
 
 const mode = ref<OutputModes>(
