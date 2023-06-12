@@ -1,6 +1,5 @@
 import { createApp, h, watchEffect } from 'vue'
 import { Repl, ReplStore } from '../src'
-;
 
 (window as any).process = { env: {} }
 
@@ -43,7 +42,7 @@ const App = {
         ssr: true,
         sfcOptions: {
           script: {
-            // inlineTemplate: false
+            // inlineTemplate: false,
           },
         },
         // showCompileOutput: false,
