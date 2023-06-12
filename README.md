@@ -6,8 +6,8 @@ Vue SFC REPL as a Vue 3 component.
 
 ```vue
 <script setup>
-import { Repl } from '@vue/repl'
-import '@vue/repl/style.css'
+import { Repl } from '@liting-yes/repl'
+import '@liting-yes/repl/style.css'
 </script>
 
 <template>
@@ -20,7 +20,7 @@ import '@vue/repl/style.css'
 ```vue
 <script setup>
 import { watchEffect } from 'vue'
-import { Repl, ReplStore } from '@vue/repl'
+import { Repl, ReplStore } from '@liting-yes/repl'
 
 // retrieve some configuration options from the URL
 const query = new URLSearchParams(location.search)
