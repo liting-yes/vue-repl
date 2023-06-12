@@ -66,7 +66,7 @@ function processFile(
     file.filename
   )
   // append css
-  if (!isSSR && file.compiled.css) {
+  if (file.compiled.css) {
     js += `\nwindow.__css__ += ${JSON.stringify(file.compiled.css)}`
   }
   // crawl child imports
@@ -255,7 +255,7 @@ function processModule(
   }
 
   // 4. convert dynamic imports
-  ;(walk as any)(ast, {
+  ; (walk as any)(ast, {
     enter(node: Node, parent: Node) {
       if (node.type === 'Import' && parent.type === 'CallExpression') {
         const arg = parent.arguments[0]
