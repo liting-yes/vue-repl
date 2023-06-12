@@ -4,13 +4,13 @@
   "description": "Vue component for editing Vue components",
   "author": "Evan You",
   "license": "MIT",
-  "homepage": "https://github.com/vuejs/repl#readme",
+  "homepage": "https://github.com/liting-yes/vue-repl#vuerepl",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vuejs/repl.git"
+    "url": "https://github.com/liting-yes/vue-repl.git"
   },
   "bugs": {
-    "url": "https://github.com/vuejs/repl/issues"
+    "url": "https://github.com/liting-yes/vue-repl/issues"
   },
   "exports": {
     ".": {
