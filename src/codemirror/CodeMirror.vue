@@ -38,7 +38,8 @@ onMounted(() => {
       language.of(vue()),
       EditorState.tabSize.of(2),
       EditorView.updateListener.of((update: ViewUpdate) => {
-        emit('change', update.state.doc.toString())
+        if (update.docChanged)
+          emit('change', update.state.doc.toString())
       }),
       oneDark,
       readOnly.of(EditorState.readOnly.of(!!props.readonly)),
