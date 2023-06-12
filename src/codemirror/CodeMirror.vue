@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { inject, onMounted, ref, watchEffect } from 'vue'
+import { EditorView, basicSetup } from 'codemirror'
+import { Compartment, EditorState } from '@codemirror/state'
+import { vue } from '@codemirror/lang-vue'
+import { javascript } from '@codemirror/lang-javascript'
+import { css } from '@codemirror/lang-css'
+import type { ViewUpdate } from '@codemirror/view'
+import { keymap } from '@codemirror/view'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { indentLess, insertTab } from '@codemirror/commands'
 import { debounce } from '../utils'
-import CodeMirror from './codemirror'
 
 export interface Props {
   mode?: string
@@ -10,7 +18,7 @@ export interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  mode: 'htmlmixed',
+  mode: 'vue',
   value: '',
   readonly: false,
 })
@@ -21,46 +29,56 @@ const el = ref()
 const needAutoResize = inject('autoresize')
 
 onMounted(() => {
-  const addonOptions = {
-    autoCloseBrackets: true,
-    autoCloseTags: true,
-    foldGutter: true,
-    gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-  }
+  const language = new Compartment()
+  const readOnly = new Compartment()
 
-  const editor = CodeMirror(el.value!, {
-    value: '',
-    mode: props.mode,
-    readOnly: props.readonly,
-    tabSize: 2,
-    lineWrapping: true,
-    lineNumbers: true,
-    ...addonOptions,
+  const state = EditorState.create({
+    extensions: [
+      basicSetup,
+      language.of(vue()),
+      EditorState.tabSize.of(2),
+      EditorView.updateListener.of((update: ViewUpdate) => {
+        emit('change', update.state.doc.toString())
+      }),
+      oneDark,
+      readOnly.of(EditorState.readOnly.of(!!props.readonly)),
+      keymap.of([{ key: 'Tab', run: insertTab, shift: indentLess }]),
+    ],
   })
 
-  editor.on('change', () => {
-    emit('change', editor.getValue())
+  const editor = new EditorView({
+    state,
+    parent: el.value,
   })
 
   watchEffect(() => {
-    const cur = editor.getValue()
+    const cur = editor.state.doc.toString()
     if (props.value !== cur)
-      editor.setValue(props.value)
+      editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: props.value } })
   })
 
   watchEffect(() => {
-    editor.setOption('mode', props.mode)
+    if (props.mode === 'javascript')
+      editor.dispatch({ effects: language.reconfigure(javascript()) })
+    else if (props.mode === 'css')
+      editor.dispatch({ effects: language.reconfigure(css()) })
+    else
+      editor.dispatch({ effects: language.reconfigure(vue()) })
+  })
+
+  watchEffect(() => {
+    editor.dispatch({ effects: readOnly.reconfigure(EditorState.readOnly.of(!!props.readonly)) })
   })
 
   setTimeout(() => {
-    editor.refresh()
+    editor.requestMeasure()
   }, 50)
 
   if (needAutoResize) {
     window.addEventListener(
       'resize',
       debounce(() => {
-        editor.refresh()
+        editor.requestMeasure()
       }),
     )
   }
@@ -77,11 +95,6 @@ onMounted(() => {
   height: 100%;
   width: 100%;
   overflow: hidden;
-}
-
-.CodeMirror {
-  font-family: var(--font-code);
-  line-height: 1.5;
-  height: 100%;
+  background: #282c34;
 }
 </style>
