@@ -1,8 +1,9 @@
 {
   "name": "@liting-yes/vue-repl",
   "version": "0.1.0",
+  "private": false,
   "description": "Vue component for editing Vue components",
-  "author": "Evan You",
+  "author": "liting-yes <luz.liting@gmail.com> (https://liting.ink/)",
   "license": "MIT",
   "homepage": "https://github.com/liting-yes/vue-repl#vuerepl",
   "repository": {
@@ -11,6 +12,10 @@
   },
   "bugs": {
     "url": "https://github.com/liting-yes/vue-repl/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "exports": {
     ".": {
