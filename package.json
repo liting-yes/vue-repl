@@ -31,7 +31,8 @@
     "pnpm": ">=8.6.0"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite -c ./vite.config.demo.ts",
+    "build:demo": "vite build -c ./vite.config.demo.ts",
     "build": "vite build",
     "build-types": "vue-tsc -p tsconfig.build.json && api-extractor run -c api-extractor.json && rimraf dist/src",
     "prepublishOnly": "npm run build && npm run build-types",
