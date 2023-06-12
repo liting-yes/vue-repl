@@ -27,9 +27,6 @@
   "files": [
     "dist"
   ],
-  "engines": {
-    "pnpm": ">=8.6.0"
-  },
   "scripts": {
     "dev": "vite -c ./vite.config.demo.ts",
     "build:demo": "vite build -c ./vite.config.demo.ts",
@@ -64,7 +61,6 @@
     "hash-sum": "^2.0.0",
     "inquirer": "8",
     "lint-staged": "^13.2.2",
-    "pnpm": "^8.6.2",
     "rimraf": "^3.0.2",
     "simple-git-hooks": "^2.8.1",
     "sucrase": "^3.29.0",
