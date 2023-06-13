@@ -19,7 +19,7 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/repl.d.ts",
+      "types": "./dist/vue-repl.d.ts",
       "require": "./dist/ssr-stub.js",
       "import": "./dist/vue-repl.js"
     },
