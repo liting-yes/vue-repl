@@ -2,6 +2,8 @@
 
 Vue SFC REPL as a Vue 3 component.
 
+> fork from [vuejs/repl](https://github.com/vuejs/repl) but more radical
+
 ## Simple Usage
 
 ```vue
