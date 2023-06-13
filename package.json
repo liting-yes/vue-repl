@@ -28,7 +28,7 @@
   },
   "main": "dist/ssr-stub.js",
   "module": "dist/vue-repl.js",
-  "types": "dist/repl.d.ts",
+  "types": "dist/vue-repl.d.ts",
   "files": [
     "dist"
   ],
