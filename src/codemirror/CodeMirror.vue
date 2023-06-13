@@ -9,6 +9,7 @@ import type { ViewUpdate } from '@codemirror/view'
 import { keymap } from '@codemirror/view'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { indentLess, insertTab } from '@codemirror/commands'
+import { html } from '@codemirror/lang-html'
 import { debounce } from '../utils'
 
 export interface Props {
@@ -35,7 +36,12 @@ onMounted(() => {
   const state = EditorState.create({
     extensions: [
       basicSetup,
-      language.of(vue()),
+      language.of(vue({
+        base: html({
+          matchClosingTags: true,
+          autoCloseTags: true,
+        }),
+      })),
       EditorState.tabSize.of(2),
       EditorView.updateListener.of((update: ViewUpdate) => {
         if (update.docChanged)
@@ -59,12 +65,22 @@ onMounted(() => {
   })
 
   watchEffect(() => {
-    if (props.mode === 'javascript')
+    if (props.mode === 'javascript') {
       editor.dispatch({ effects: language.reconfigure(javascript()) })
-    else if (props.mode === 'css')
+    }
+    else if (props.mode === 'css') {
       editor.dispatch({ effects: language.reconfigure(css()) })
-    else
-      editor.dispatch({ effects: language.reconfigure(vue()) })
+    }
+    else {
+      editor.dispatch({
+        effects: language.reconfigure(vue({
+          base: html({
+            matchClosingTags: true,
+            autoCloseTags: true,
+          }),
+        })),
+      })
+    }
   })
 
   watchEffect(() => {
