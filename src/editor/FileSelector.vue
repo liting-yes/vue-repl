@@ -50,9 +50,7 @@ function doneAddFile() {
   const filename = pendingFilename.value
 
   if (!/\.(vue|js|ts|css)$/.test(filename)) {
-    store.state.errors = [
-      'Playground only supports *.vue, *.js, *.ts, *.css files.',
-    ]
+    store.state.errors = ['Playground only supports *.vue, *.js, *.ts, *.css files.']
     return
   }
 
@@ -70,8 +68,7 @@ const fileSel = ref(null)
 function horizontalScroll(e: WheelEvent) {
   e.preventDefault()
   const el = fileSel.value! as HTMLElement
-  const direction
-    = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+  const direction = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY
   const distance = 30 * (direction > 0 ? 1 : -1)
   el.scrollTo({
     left: el.scrollLeft + distance,
@@ -80,22 +77,12 @@ function horizontalScroll(e: WheelEvent) {
 </script>
 
 <template>
-  <div
-    ref="fileSel"
-    class="file-selector"
-    :class="{ 'has-import-map': showImportMap }"
-    @wheel="horizontalScroll"
-  >
+  <div ref="fileSel" class="file-selector" :class="{ 'has-import-map': showImportMap }" @wheel="horizontalScroll">
     <div
-      v-for="(file, i) in files"
-      :key="file"
-      class="file"
-      :class="{ active: store.state.activeFile.filename === file }"
+      v-for="(file, i) in files" :key="file" class="file" :class="{ active: store.state.activeFile.filename === file }"
       @click="store.setActive(file)"
     >
-      <span class="label">{{
-        file === importMapFile ? 'Import Map' : file
-      }}</span>
+      <span class="label">{{ file === importMapFile ? "Import Map" : file }}</span>
       <span v-if="i > 0" class="remove" @click.stop="store.deleteFile(file)">
         <svg class="icon" width="12" height="12" viewBox="0 0 24 24">
           <line stroke="#999" x1="18" y1="6" x2="6" y2="18" />
@@ -105,12 +92,8 @@ function horizontalScroll(e: WheelEvent) {
     </div>
     <div v-if="pending" class="file pending">
       <input
-        v-model="pendingFilename"
-        spellcheck="false"
-        @blur="doneAddFile"
-        @keyup.enter="doneAddFile"
-        @keyup.esc="cancelAddFile"
-        @vnodeMounted="focus"
+        v-model="pendingFilename" spellcheck="false" @blur="doneAddFile" @keyup.enter="doneAddFile"
+        @keyup.esc="cancelAddFile" @vue:mounted="focus"
       >
     </div>
     <button class="add" @click="startAddFile">
@@ -119,8 +102,7 @@ function horizontalScroll(e: WheelEvent) {
 
     <div v-if="showImportMap" class="import-map-wrapper">
       <div
-        class="file import-map"
-        :class="{ active: store.state.activeFile.filename === importMapFile }"
+        class="file import-map" :class="{ active: store.state.activeFile.filename === importMapFile }"
         @click="store.setActive(importMapFile)"
       >
         <span class="label">Import Map</span>
@@ -166,16 +148,19 @@ function horizontalScroll(e: WheelEvent) {
   color: var(--text-light);
   box-sizing: border-box;
 }
+
 .file.active {
   color: var(--color-branding);
   border-bottom: 3px solid var(--color-branding);
   cursor: text;
 }
+
 .file span {
   display: inline-block;
   padding: 8px 10px 6px;
   line-height: 20px;
 }
+
 .file.pending input {
   width: 90px;
   height: 30px;
@@ -189,6 +174,7 @@ function horizontalScroll(e: WheelEvent) {
   font-family: var(--font-code);
   font-size: 12px;
 }
+
 .file .remove {
   display: inline-block;
   vertical-align: middle;
@@ -196,6 +182,7 @@ function horizontalScroll(e: WheelEvent) {
   cursor: pointer;
   padding-left: 0;
 }
+
 .add {
   font-size: 18px;
   font-family: var(--font-code);
@@ -205,12 +192,15 @@ function horizontalScroll(e: WheelEvent) {
   position: relative;
   top: -1px;
 }
+
 .add:hover {
   color: var(--color-branding);
 }
+
 .icon {
   margin-top: -1px;
 }
+
 .import-map-wrapper {
   position: sticky;
   margin-left: auto;
@@ -218,17 +208,12 @@ function horizontalScroll(e: WheelEvent) {
   right: 0;
   padding-left: 30px;
   background-color: var(--bg);
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 1) 25%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 1) 25%);
 }
+
 .dark .import-map-wrapper {
-  background: linear-gradient(
-    90deg,
-    rgba(26, 26, 26, 0) 0%,
-    rgba(26, 26, 26, 1) 25%
-  );
+  background: linear-gradient(90deg, rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 1) 25%);
 }
 </style>
