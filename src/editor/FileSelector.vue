@@ -5,7 +5,7 @@ import type { Store } from '../store'
 
 const store = inject('store') as Store
 
-const pending = ref(false)
+const pending = ref<boolean | string>(false)
 const pendingFilename = ref('Comp.vue')
 const importMapFile = 'import-map.json'
 const showImportMap = inject('import-map') as Ref<boolean>
@@ -36,7 +36,7 @@ function startAddFile() {
   pending.value = true
 }
 
-function cancelAddFile() {
+function cancelNameFile() {
   pending.value = false
 }
 
@@ -44,31 +44,48 @@ function focus({ el }: VNode) {
   (el as HTMLInputElement).focus()
 }
 
-function doneAddFile() {
+function doneNameFile() {
   if (!pending.value)
     return
   const filename = pendingFilename.value
+  const oldFilename = pending.value === true ? '' : pending.value
 
-  if (!/\.(vue|js|ts|css)$/.test(filename)) {
-    store.state.errors = ['Playground only supports *.vue, *.js, *.ts, *.css files.']
+  if (!/\.(vue|js|ts|css|json)$/.test(filename)) {
+    store.state.errors = [
+      'Playground only supports *.vue, *.js, *.ts, *.css, *.json files.',
+    ]
     return
   }
 
-  if (filename in store.state.files) {
+  if (filename !== oldFilename && filename in store.state.files) {
     store.state.errors = [`File "${filename}" already exists.`]
     return
   }
 
   store.state.errors = []
-  cancelAddFile()
-  store.addFile(filename)
+  cancelNameFile()
+
+  if (filename === oldFilename)
+    return
+
+  if (oldFilename)
+    store.renameFile(oldFilename, filename)
+
+  else
+    store.addFile(filename)
+}
+
+function editFileName(file: string) {
+  pendingFilename.value = file
+  pending.value = file
 }
 
 const fileSel = ref(null)
 function horizontalScroll(e: WheelEvent) {
   e.preventDefault()
   const el = fileSel.value! as HTMLElement
-  const direction = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+  const direction
+    = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY
   const distance = 30 * (direction > 0 ? 1 : -1)
   el.scrollTo({
     left: el.scrollLeft + distance,
@@ -78,24 +95,28 @@ function horizontalScroll(e: WheelEvent) {
 
 <template>
   <div ref="fileSel" class="file-selector" :class="{ 'has-import-map': showImportMap }" @wheel="horizontalScroll">
-    <div
-      v-for="(file, i) in files" :key="file" class="file" :class="{ active: store.state.activeFile.filename === file }"
-      @click="store.setActive(file)"
-    >
-      <span class="label">{{ file === importMapFile ? "Import Map" : file }}</span>
-      <span v-if="i > 0" class="remove" @click.stop="store.deleteFile(file)">
-        <svg class="icon" width="12" height="12" viewBox="0 0 24 24">
-          <line stroke="#999" x1="18" y1="6" x2="6" y2="18" />
-          <line stroke="#999" x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      </span>
-    </div>
-    <div v-if="pending" class="file pending">
-      <input
-        v-model="pendingFilename" spellcheck="false" @blur="doneAddFile" @keyup.enter="doneAddFile"
-        @keyup.esc="cancelAddFile" @vue:mounted="focus"
+    <template v-for="(file, i) in files" :key="file">
+      <div
+        v-if="pending !== file" class="file" :class="{ active: store.state.activeFile.filename === file }"
+        @click="store.setActive(file)" @dblclick="i > 0 && editFileName(file)"
       >
-    </div>
+        <span class="label">{{
+          file === importMapFile ? 'Import Map' : file
+        }}</span>
+        <span v-if="i > 0" class="remove" @click.stop="store.deleteFile(file)">
+          <svg class="icon" width="12" height="12" viewBox="0 0 24 24">
+            <line stroke="#999" x1="18" y1="6" x2="6" y2="18" />
+            <line stroke="#999" x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </span>
+      </div>
+      <div v-if="(pending === true && i === files.length - 1) || (pending === file)" class="file pending">
+        <input
+          v-model="pendingFilename" spellcheck="false" @blur="doneNameFile" @keyup.enter="doneNameFile"
+          @keyup.esc="cancelNameFile" @vue:mounted="focus"
+        >
+      </div>
+    </template>
     <button class="add" @click="startAddFile">
       +
     </button>
@@ -214,6 +235,8 @@ function horizontalScroll(e: WheelEvent) {
 }
 
 .dark .import-map-wrapper {
-  background: linear-gradient(90deg, rgba(26, 26, 26, 0) 0%, rgba(26, 26, 26, 1) 25%);
+  background: linear-gradient(90deg,
+      rgba(26, 26, 26, 0) 0%,
+      rgba(26, 26, 26, 1) 25%);
 }
 </style>
