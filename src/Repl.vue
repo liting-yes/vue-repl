@@ -47,7 +47,6 @@ const sfcOptions = (store.options = props.sfcOptions || {})
 if (!sfcOptions.script)
   sfcOptions.script = {}
 
-// @ts-expect-error only needed in 3.3
 sfcOptions.script.fs = {
   fileExists(file: string) {
     if (file.startsWith('/'))

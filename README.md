@@ -2,62 +2,34 @@
 
 Vue SFC REPL as a Vue 3 component.
 
-> fork from [vuejs/repl](https://github.com/vuejs/repl) but more radical
+## Components
 
-## Simple Usage
+> For detailed props, please check the source code by yourself
 
-```vue
-<script setup>
-import { Repl } from '@liting-yes/vue-repl'
-import '@liting-yes/vue-repl/style.css'
-</script>
+### Repl
 
-<template>
-  <Repl />
-</template>
-```
+view [demo](https://vue-repl.netlify.app/), like [Vue SFC Playground](https://play.vuejs.org/), [source](https://github.com/liting-yes/vue-repl/blob/main/src/Repl.vue)
 
-## Advanced Usage
+### Editor
 
-```vue
-<script setup>
-import { watchEffect } from 'vue'
-import { Repl, ReplStore } from '@liting-yes/vue-repl'
+edit in Repl, [source](https://github.com/liting-yes/vue-repl/blob/main/src/editor/Editor.vue)
 
-// retrieve some configuration options from the URL
-const query = new URLSearchParams(location.search)
+### CodeMirror
 
-const store = new ReplStore({
-  // initialize repl with previously serialized state
-  serializedState: location.hash.slice(1),
+code edit in Repl, [source](https://github.com/liting-yes/vue-repl/blob/main/src/codemirror/CodeMirror.vue)
 
-  // starts on the output pane (mobile only) if the URL has a showOutput query
-  showOutput: query.has('showOutput'),
-  // starts on a different tab on the output pane if the URL has a outputMode query
-  // and default to the "preview" tab
-  outputMode: query.get('outputMode') || 'preview',
+### Preview
 
-  // specify the default URL to import Vue runtime from in the sandbox
-  // default is the CDN link from unpkg.com with version matching Vue's version
-  // from peerDependency
-  defaultVueRuntimeURL: 'cdn link to vue.runtime.esm-browser.js',
-})
+code preview in Repl, [source](https://github.com/liting-yes/vue-repl/blob/main/src/output/Preview.vue)
 
-// persist state to URL hash
-watchEffect(() => history.replaceState({}, '', store.serialize()))
+## Notice
 
-// pre-set import map
-store.setImportMap({
-  imports: {
-    myLib: 'cdn link to esm build of myLib',
-  },
-})
+- Fork from [vuejs/repl](https://github.com/vuejs/repl) but more radical
 
-// use a specific version of Vue
-store.setVueVersion('3.2.8')
-</script>
+- Retain the basic functions of [vuejs/repl](https://github.com/vuejs/repl), but explore more scalability
 
-<template>
-  <Repl :store="store" :show-compile-output="true" />
-</template>
-```
+- Timed synchronization of new features of [vuejs/repl](https://github.com/vuejs/repl)
+
+## LICENSE
+
+[MIT](./LICENSE)
