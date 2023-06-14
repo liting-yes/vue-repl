@@ -98,9 +98,10 @@ export async function compileFile(
   const [clientScript, bindings] = clientScriptResult
   clientCode += clientScript
 
-  // script ssr only needs to be performed if using <script setup> where
-  // the render fn is inlined.
-  if (descriptor.scriptSetup) {
+  // script ssr needs to be performed if :
+  // 1.using <script setup> where the render fn is inlined.
+  // 2.using cssVars, as it do not need to be injected during SSR.
+  if (descriptor.scriptSetup || descriptor.cssVars.length > 0) {
     const ssrScriptResult = await doCompileScript(
       store,
       descriptor,
@@ -114,7 +115,7 @@ export async function compileFile(
       ssrCode = `/* SSR compile error: ${store.state.errors[0]} */`
   }
   else {
-    // when no <script setup> is used, the script result will be identical.
+    // the script result will be identical.
     ssrCode += clientScript
   }
 
