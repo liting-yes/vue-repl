@@ -15,7 +15,17 @@ import { PreviewProxy } from './PreviewProxy'
 import { compileModulesForPreview } from './moduleCompiler'
 import { Store } from '../store'
 
-const props = defineProps<{ show: boolean; ssr: boolean }>()
+export interface Props {
+  show?: boolean
+  ssr?: boolean
+  bodyStyle?: CSSStyleDeclaration
+  appStyle?: CSSStyleDeclaration
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  show: true,
+  ssr: false
+})
 
 const store = inject('store') as Store
 const clearConsole = inject('clear-console') as Ref<boolean>
@@ -72,6 +82,7 @@ function createSandbox() {
       'allow-modals',
       'allow-pointer-lock',
       'allow-popups',
+      'allow-same-origin',
       'allow-scripts',
       'allow-top-navigation-by-user-activation'
     ].join(' ')
@@ -89,7 +100,13 @@ function createSandbox() {
     JSON.stringify(importMap)
   )
   sandbox.srcdoc = sandboxSrc
+
+
   container.value.appendChild(sandbox)
+
+
+
+
 
   proxy = new PreviewProxy(sandbox, {
     on_fetch_progress: (progress: any) => {
@@ -147,7 +164,11 @@ function createSandbox() {
   })
 
   sandbox.addEventListener('load', () => {
+
+
     proxy.handle_links()
+
+
     stopUpdateWatcher = watchEffect(updatePreview)
   })
 }
@@ -167,7 +188,7 @@ async function updatePreview() {
     if (major === 3 && (minor < 2 || (minor === 2 && patch < 27))) {
       alert(
         `The selected version of Vue (${store.vueVersion}) does not support in-browser SSR.` +
-          ` Rendering in client mode instead.`
+        ` Rendering in client mode instead.`
       )
       isSSR = false
     }
@@ -206,15 +227,13 @@ async function updatePreview() {
     // compile code to simulated module system
     const modules = compileModulesForPreview(store)
     console.log(
-      `[@vue/repl] successfully compiled ${modules.length} module${
-        modules.length > 1 ? `s` : ``
+      `[@vue/repl] successfully compiled ${modules.length} module${modules.length > 1 ? `s` : ``
       }.`
     )
-
     const codeToEval = [
       `window.__modules__ = {}\nwindow.__css__ = ''\n` +
-        `if (window.__app__) window.__app__.unmount()\n` +
-        (isSSR ? `` : `document.body.innerHTML = '<div id="app"></div>'`),
+      `if (window.__app__) window.__app__.unmount()\n` +
+      (isSSR ? `` : `document.body.innerHTML = '<div id="app"></div>'`),
       ...modules,
       `document.getElementById('__sfc-styles').innerHTML = window.__css__`
     ]
@@ -222,8 +241,7 @@ async function updatePreview() {
     // if main file is a vue file, mount it.
     if (mainFile.endsWith('.vue')) {
       codeToEval.push(
-        `import { ${
-          isSSR ? `createSSRApp` : `createApp`
+        `import { ${isSSR ? `createSSRApp` : `createApp`
         } as _createApp } from "vue"
         const _mount = () => {
           const AppComponent = __modules__["${mainFile}"].default
@@ -247,6 +265,21 @@ async function updatePreview() {
     await proxy.eval(codeToEval)
   } catch (e: any) {
     runtimeError.value = (e as Error).message
+  }
+
+  if (sandbox.contentWindow?.document.body && props.bodyStyle) {
+    for (const key in props.bodyStyle) {
+      sandbox.contentWindow.document.body.style[key] = props.bodyStyle[key]
+    }
+  }
+
+  if (props.appStyle) {
+    const appEl = sandbox.contentWindow?.document.body.querySelector('#app') as HTMLElement
+    if (appEl) {
+      for (const key in props.appStyle) {
+        appEl.style[key] = props.appStyle[key]
+      }
+    }
   }
 }
 </script>
