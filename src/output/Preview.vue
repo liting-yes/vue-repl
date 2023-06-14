@@ -13,7 +13,7 @@ import {
 import srcdoc from './srcdoc.html?raw'
 import { PreviewProxy } from './PreviewProxy'
 import { compileModulesForPreview } from './moduleCompiler'
-import { Store } from '../store'
+import { Store, importMapFile } from '../store'
 import type { Props as ReplProps } from '../Repl.vue'
 
 
@@ -45,7 +45,7 @@ onMounted(createSandbox)
 
 // reset sandbox when import map changes
 watch(
-  () => store.state.files['import-map.json'].code,
+  () => store.state.files[importMapFile].code,
   raw => {
     try {
       const map = JSON.parse(raw)

@@ -2,12 +2,12 @@
 import type { Ref, VNode } from 'vue'
 import { computed, inject, ref } from 'vue'
 import type { Store } from '../store'
+import { importMapFile } from '../store'
 
 const store = inject('store') as Store
 
 const pending = ref<boolean | string>(false)
 const pendingFilename = ref('Comp.vue')
-const importMapFile = 'import-map.json'
 const showImportMap = inject('import-map') as Ref<boolean>
 const files = computed(() =>
   Object.entries(store.state.files)

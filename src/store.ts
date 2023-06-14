@@ -11,6 +11,7 @@ import { atou, utoa } from './utils'
 import type { OutputModes } from './output/types'
 
 export const defaultMainFile = 'App.vue'
+export const importMapFile = 'import-map.json'
 
 const welcomeCode = `
 <script setup>
@@ -215,7 +216,7 @@ export class ReplStore implements Store {
 
   serialize() {
     const files = this.getFiles()
-    const importMap = files['import-map.json']
+    const importMap = files[importMapFile]
     if (importMap) {
       const { imports } = JSON.parse(importMap)
       if (imports.vue === this.defaultVueRuntimeURL)
@@ -225,9 +226,9 @@ export class ReplStore implements Store {
         delete imports['vue/server-renderer']
 
       if (!Object.keys(imports).length)
-        delete files['import-map.json']
+        delete files[importMapFile]
       else
-        files['import-map.json'] = JSON.stringify({ imports }, null, 2)
+        files[importMapFile] = JSON.stringify({ imports }, null, 2)
     }
     return `#${utoa(JSON.stringify(files))}`
   }
@@ -263,10 +264,11 @@ export class ReplStore implements Store {
   }
 
   private initImportMap() {
-    const map = this.state.files['import-map.json']
+    const map = this.state.files[importMapFile]
+
     if (!map) {
-      this.state.files['import-map.json'] = new File(
-        'import-map.json',
+      this.state.files[importMapFile] = new File(
+        importMapFile,
         JSON.stringify(
           {
             imports: {
@@ -296,7 +298,7 @@ export class ReplStore implements Store {
 
   getImportMap() {
     try {
-      return JSON.parse(this.state.files['import-map.json'].code)
+      return JSON.parse(this.state.files[importMapFile].code)
     }
     catch (e) {
       this.state.errors = [
@@ -310,7 +312,7 @@ export class ReplStore implements Store {
     imports: Record<string, string>
     scopes?: Record<string, Record<string, string>>
   }) {
-    this.state.files['import-map.json']!.code = JSON.stringify(map, null, 2)
+    this.state.files[importMapFile]!.code = JSON.stringify(map, null, 2)
   }
 
   async setVueVersion(version: string) {
