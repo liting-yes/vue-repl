@@ -68,7 +68,16 @@ export interface Store {
   setActive: (filename: string) => void
   addFile: (filename: string | File) => void
   deleteFile: (filename: string) => void
+  serialize: () => string
+  getFiles: () => Record<string, string>
+  setFiles: (newFiles: Record<string, string>, mainFile?: string) => Promise<void>
   getImportMap: () => any
+  setImportMap: (map: {
+    imports: Record<string, string>
+    scopes?: Record<string, Record<string, string>>
+  }) => void
+  setVueVersion: (version: string) => Promise<void>
+  resetVueVersion: () => void
   initialShowOutput: boolean
   initialOutputMode: OutputModes
 }
