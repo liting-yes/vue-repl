@@ -10,7 +10,7 @@ import { compileFile } from './transform'
 import { atou, utoa } from './utils'
 import type { OutputModes } from './output/types'
 
-const defaultMainFile = 'App.vue'
+export const defaultMainFile = 'App.vue'
 
 const welcomeCode = `
 <script setup>
