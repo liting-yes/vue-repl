@@ -29,6 +29,11 @@ const props = withDefaults(defineProps<Props>(), {
   ssr: false
 })
 
+type UpdateFlag = 'UPDATING' | 'SUCCESS' | 'FAILURE'
+const emits = defineEmits<{
+  (e: 'update-preview', flag: UpdateFlag): UpdateFlag
+}>()
+
 const store = inject('store') as Store
 const clearConsole = inject('clear-console') as Ref<boolean>
 const previewOptions = inject('preview-options') as ReplProps['previewOptions']
@@ -182,6 +187,7 @@ function createSandbox() {
 }
 
 async function updatePreview() {
+  emits('update-preview', 'UPDATING')
   if (import.meta.env.PROD && clearConsole.value) {
     console.clear()
   }
@@ -273,8 +279,10 @@ async function updatePreview() {
 
     // eval code in sandbox
     await proxy.eval(codeToEval)
+    emits('update-preview', 'SUCCESS')
   } catch (e: any) {
     runtimeError.value = (e as Error).message
+    emits('update-preview', 'FAILURE')
   }
 
   if (sandbox.contentWindow?.document.body && props.bodyStyle) {
