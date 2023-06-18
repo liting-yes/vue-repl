@@ -1,6 +1,7 @@
 import type { Plugin } from 'vite'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 const genStub: Plugin = {
   name: 'gen-stub',
@@ -15,7 +16,7 @@ const genStub: Plugin = {
 }
 
 export default defineConfig({
-  plugins: [vue(), genStub],
+  plugins: [vue(), genStub, visualizer()],
   build: {
     target: 'esnext',
     minify: false,
