@@ -29,7 +29,7 @@ const props = withDefaults(defineProps<Props>(), {
   ssr: false
 })
 
-type UpdateFlag = 'UPDATING' | 'SUCCESS' | 'FAILURE'
+export type UpdateFlag = 'UPDATING' | 'SUCCESS' | 'FAILURE'
 const emits = defineEmits<{
   (e: 'update-preview', flag: UpdateFlag): UpdateFlag
 }>()
