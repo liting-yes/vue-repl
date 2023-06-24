@@ -1,4 +1,6 @@
-# @vue/repl
+# vue-repl
+
+> Fork from [vuejs/repl](https://github.com/vuejs/repl) with some expand
 
 Vue SFC REPL as a Vue 3 component.
 
