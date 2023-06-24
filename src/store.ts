@@ -89,6 +89,10 @@ export interface Store {
   deleteFile: (filename: string) => void
   renameFile: (oldFilename: string, newFilename: string) => void
   getImportMap: () => any
+  setFiles: (
+    newFiles: Record<string, string>,
+    mainFile?: string
+  ) => Promise<void>
   initialShowOutput: boolean
   initialOutputMode: OutputModes
 }
