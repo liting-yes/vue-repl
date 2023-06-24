@@ -10,7 +10,7 @@ import {
 import { OutputModes } from './output/types'
 import { Selection } from 'monaco-editor-core'
 
-const defaultMainFile = 'src/App.vue'
+export const defaultMainFile = 'src/App.vue'
 
 export const importMapFile = 'import-map.json'
 
