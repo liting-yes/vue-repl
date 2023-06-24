@@ -9,10 +9,10 @@
   "files": [
     "dist"
   ],
-  "types": "dist/repl.d.ts",
+  "types": "dist/vue-repl.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/repl.d.ts",
+      "types": "./dist/vue-repl.d.ts",
       "import": "./dist/vue-repl.js",
       "require": "./dist/ssr-stub.js"
     },
