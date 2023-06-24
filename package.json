@@ -37,8 +37,7 @@
     "release": "bumpp -r",
     "prepublishOnly": "npm run build && npm run build-types",
     "commit": "git add . && git-cz",
-    "prepare": "npx simple-git-hooks",
-    "postinstall": "npm run build && npm run build-types"
+    "prepare": "npx simple-git-hooks"
   },
   "repository": {
     "type": "git",
