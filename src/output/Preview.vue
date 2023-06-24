@@ -17,6 +17,10 @@ import { Store, importMapFile } from '../store'
 import { Props } from '../Repl.vue'
 
 const props = defineProps<{ show: boolean; ssr: boolean }>()
+export type UpdateFlag = 'UPDATING' | 'SUCCESS' | 'FAILURE'
+const emits = defineEmits<{
+  (e: 'update-preview', flag: UpdateFlag): UpdateFlag
+}>()
 
 const store = inject('store') as Store
 const clearConsole = inject('clear-console') as Ref<boolean>
@@ -160,6 +164,7 @@ function createSandbox() {
 }
 
 async function updatePreview() {
+  emits('update-preview', 'UPDATING')
   if (import.meta.env.PROD && clearConsole.value) {
     console.clear()
   }
@@ -260,8 +265,10 @@ async function updatePreview() {
 
     // eval code in sandbox
     await proxy.eval(codeToEval)
+    emits('update-preview', 'SUCCESS')
   } catch (e: any) {
     runtimeError.value = (e as Error).message
+    emits('update-preview', 'FAILURE')
   }
 }
 </script>
