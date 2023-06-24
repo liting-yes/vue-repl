@@ -16,7 +16,12 @@ import { compileModulesForPreview } from './moduleCompiler'
 import { Store, importMapFile } from '../store'
 import { Props } from '../Repl.vue'
 
-const props = defineProps<{ show: boolean; ssr: boolean }>()
+const props = defineProps<{
+  show: boolean
+  ssr: boolean
+  bodyStyle?: CSSStyleDeclaration
+  appStyle?: CSSStyleDeclaration
+}>()
 export type UpdateFlag = 'UPDATING' | 'SUCCESS' | 'FAILURE'
 const emits = defineEmits<{
   (e: 'update-preview', flag: UpdateFlag): UpdateFlag
@@ -269,6 +274,23 @@ async function updatePreview() {
   } catch (e: any) {
     runtimeError.value = (e as Error).message
     emits('update-preview', 'FAILURE')
+  }
+
+  if (sandbox.contentWindow?.document.body && props.bodyStyle) {
+    for (const key in props.bodyStyle) {
+      sandbox.contentWindow.document.body.style[key] = props.bodyStyle[key]
+    }
+  }
+
+  if (props.appStyle) {
+    const appEl = sandbox.contentWindow?.document.body.querySelector(
+      '#app'
+    ) as HTMLElement
+    if (appEl) {
+      for (const key in props.appStyle) {
+        appEl.style[key] = props.appStyle[key]
+      }
+    }
   }
 }
 </script>
