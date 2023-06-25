@@ -1,4 +1,4 @@
-import { version, reactive, watchEffect } from 'vue'
+import { version, reactive, watchEffect, watch } from 'vue'
 import * as defaultCompiler from 'vue/compiler-sfc'
 import { compileFile } from './transform'
 import { utoa, atou } from './utils'
@@ -9,10 +9,12 @@ import {
 } from 'vue/compiler-sfc'
 import { OutputModes } from './output/types'
 import { Selection } from 'monaco-editor-core'
+import { reloadVue } from './monaco/env'
 
 export const defaultMainFile = 'src/App.vue'
 
 export const importMapFile = 'import-map.json'
+export const tsconfigFile = 'tsconfig.json'
 
 const welcomeCode = `
 <script setup>
@@ -26,6 +28,21 @@ const msg = ref('Hello World!')
   <input v-model="msg">
 </template>
 `.trim()
+
+const tsconfig = {
+  compilerOptions: {
+    allowJs: true,
+    checkJs: true,
+    jsx: 'Preserve',
+    target: 'ESNext',
+    module: 'ESNext',
+    moduleResolution: 'Bundler',
+    allowImportingTsExtensions: true,
+  },
+  vueCompilerOptions: {
+    target: 3.3,
+  },
+}
 
 export class File {
   filename: string
@@ -93,6 +110,7 @@ export interface Store {
     newFiles: Record<string, string>,
     mainFile?: string
   ) => Promise<void>
+  getTsConfig?: () => any
   initialShowOutput: boolean
   initialOutputMode: OutputModes
 }
@@ -156,15 +174,50 @@ export class ReplStore implements Store {
     })
 
     this.initImportMap()
+    this.initTsConfig()
   }
 
   // don't start compiling until the options are set
   init() {
-    watchEffect(() => compileFile(this, this.state.activeFile))
+    watchEffect(() =>
+      compileFile(this, this.state.activeFile).then(
+        (errs) => (this.state.errors = errs)
+      )
+    )
+
+    watch(
+      () => this.state.files[tsconfigFile]?.code,
+      () => reloadVue(this)
+    )
+
+    this.state.errors = []
     for (const file in this.state.files) {
       if (file !== defaultMainFile) {
-        compileFile(this, this.state.files[file])
+        compileFile(this, this.state.files[file]).then((errs) =>
+          this.state.errors.push(...errs)
+        )
       }
+    }
+  }
+
+  private initTsConfig() {
+    if (!this.state.files[tsconfigFile]) {
+      this.setTsConfig(tsconfig)
+    }
+  }
+
+  setTsConfig(config: any) {
+    this.state.files[tsconfigFile] = new File(
+      tsconfigFile,
+      JSON.stringify(config, undefined, 2)
+    )
+  }
+
+  getTsConfig() {
+    try {
+      return JSON.parse(this.state.files[tsconfigFile].code)
+    } catch {
+      return {}
     }
   }
 
@@ -182,7 +235,9 @@ export class ReplStore implements Store {
   }
 
   deleteFile(filename: string) {
-    if (confirm(`Are you sure you want to delete ${filename}?`)) {
+    if (
+      confirm(`Are you sure you want to delete ${stripSrcPrefix(filename)}?`)
+    ) {
       if (this.state.activeFile.filename === filename) {
         this.state.activeFile = this.state.files[this.state.mainFile]
       }
@@ -223,7 +278,7 @@ export class ReplStore implements Store {
       this.state.mainFile = newFilename
     }
 
-    compileFile(this, file)
+    compileFile(this, file).then((errs) => (this.state.errors = errs))
   }
 
   serialize() {
@@ -264,8 +319,9 @@ export class ReplStore implements Store {
     for (const filename in newFiles) {
       setFile(files, filename, newFiles[filename])
     }
+    this.state.errors = []
     for (const file in files) {
-      await compileFile(this, files[file])
+      this.state.errors.push(...(await compileFile(this, files[file])))
     }
     this.state.mainFile = mainFile
     this.state.files = files
@@ -374,7 +430,9 @@ function setFile(
   // prefix user files with src/
   // for cleaner Volar path completion when using Monaco editor
   const normalized =
-    filename !== importMapFile && !filename.startsWith('src/')
+    filename !== importMapFile &&
+    filename !== tsconfigFile &&
+    !filename.startsWith('src/')
       ? `src/${filename}`
       : filename
   files[normalized] = new File(normalized, content)
@@ -382,4 +440,8 @@ function setFile(
 
 function fixURL(url: string) {
   return url.replace('https://sfc.vuejs', 'https://play.vuejs')
+}
+
+export function stripSrcPrefix(file: string) {
+  return file.replace(/^src\//, '')
 }

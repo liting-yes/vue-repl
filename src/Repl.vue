@@ -2,7 +2,7 @@
 import SplitPane from './SplitPane.vue'
 import Output from './output/Output.vue'
 import { Store, ReplStore, SFCOptions } from './store'
-import { provide, toRef } from 'vue'
+import { provide, ref, toRef } from 'vue'
 import type { EditorComponentType } from './editor/types'
 import EditorContainer from './editor/EditorContainer.vue'
 
@@ -12,6 +12,7 @@ export interface Props {
   autoResize?: boolean
   showCompileOutput?: boolean
   showImportMap?: boolean
+  showTsConfig?: boolean
   clearConsole?: boolean
   sfcOptions?: SFCOptions
   layout?: 'horizontal' | 'vertical'
@@ -31,6 +32,7 @@ const props = withDefaults(defineProps<Props>(), {
   autoResize: true,
   showCompileOutput: true,
   showImportMap: true,
+  showTsConfig: true,
   clearConsole: true,
   ssr: false,
   previewOptions: () => ({
@@ -47,6 +49,7 @@ if (!props.editor) {
   throw new Error('The "editor" prop is now required.')
 }
 
+const outputRef = ref<InstanceType<typeof Output>>()
 const { store } = props
 const sfcOptions = (store.options = props.sfcOptions || {})
 if (!sfcOptions.script) {
@@ -69,8 +72,18 @@ store.init()
 provide('store', store)
 provide('autoresize', props.autoResize)
 provide('import-map', toRef(props, 'showImportMap'))
+provide('tsconfig', toRef(props, 'showTsConfig'))
 provide('clear-console', toRef(props, 'clearConsole'))
 provide('preview-options', props.previewOptions)
+
+/**
+ * Reload the preview iframe
+ */
+function reload() {
+  outputRef.value?.reload()
+}
+
+defineExpose({ reload })
 </script>
 
 <template>
@@ -81,6 +94,7 @@ provide('preview-options', props.previewOptions)
       </template>
       <template #right>
         <Output
+          ref="outputRef"
           :editorComponent="editor"
           :showCompileOutput="props.showCompileOutput"
           :ssr="!!props.ssr"
