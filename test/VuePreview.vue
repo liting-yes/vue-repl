@@ -249,7 +249,6 @@ const isHover = useElementHover(vuePreviewContainerRef)
   :deep(.editor) {
     box-sizing: border-box;
     overflow: hidden;
-    height: auto;
     border-radius: 0 0 var(--vue-preview-radius) var(--vue-preview-radius);
     max-height: v-bind('maxHeightForCode');
     transition: max-height 0.3s;

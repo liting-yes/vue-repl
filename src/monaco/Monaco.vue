@@ -15,6 +15,7 @@ import { getOrCreateModel } from './utils'
 import { loadGrammars, loadTheme } from 'monaco-volar'
 import { Store } from '../store'
 import type { PreviewMode } from '../editor/types'
+import { debounce } from '../utils'
 
 const props = withDefaults(
   defineProps<{
@@ -36,6 +37,7 @@ const containerRef = ref<HTMLDivElement>()
 const ready = ref(false)
 const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>()
 const store = inject<Store>('store')!
+const editorHeight = ref('0px')
 
 initMonaco(store)
 
@@ -129,8 +131,20 @@ onMounted(async () => {
     // ignore save event
   })
 
+  const updateEditorHeight = debounce(() => {
+    const lineCount = editorInstance.getModel()?.getLineCount() || 8
+    const lineHeight = editorInstance.getOption(
+      monaco.editor.EditorOption.lineHeight
+    )
+    editorHeight.value = (lineCount + 1) * lineHeight + 'px'
+  })
+
+  updateEditorHeight()
+
   editorInstance.onDidChangeModelContent(() => {
     emit('change', editorInstance.getValue())
+
+    updateEditorHeight()
   })
 
   editorInstance.onDidChangeCursorSelection((e) => {
@@ -151,10 +165,10 @@ onBeforeUnmount(() => {
   <div class="editor" ref="containerRef"></div>
 </template>
 
-<style>
+<style scoped>
 .editor {
   position: relative;
-  height: 100%;
+  height: v-bind('editorHeight');
   width: 100%;
   overflow: hidden;
 }
