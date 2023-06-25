@@ -19,8 +19,8 @@ import { Props } from '../Repl.vue'
 const props = defineProps<{
   show: boolean
   ssr: boolean
-  bodyStyle?: CSSStyleDeclaration
-  appStyle?: CSSStyleDeclaration
+  bodyStyle?: Partial<CSSStyleDeclaration>
+  appStyle?: Partial<CSSStyleDeclaration>
 }>()
 export type UpdateFlag = 'UPDATING' | 'SUCCESS' | 'FAILURE'
 const emits = defineEmits<{
