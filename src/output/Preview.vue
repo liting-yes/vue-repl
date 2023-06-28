@@ -20,8 +20,8 @@ import type { Props as ReplProps } from '../Repl.vue'
 export interface Props {
   show?: boolean
   ssr?: boolean
-  bodyStyle?: CSSStyleDeclaration
-  appStyle?: CSSStyleDeclaration
+  bodyStyle?: Partial<CSSStyleDeclaration>
+  appStyle?: Partial<CSSStyleDeclaration>
 }
 
 const props = withDefaults(defineProps<Props>(), {
