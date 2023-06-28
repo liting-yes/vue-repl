@@ -287,7 +287,7 @@ async function updatePreview() {
 
   if (sandbox.contentWindow?.document.body && props.bodyStyle) {
     for (const key in props.bodyStyle) {
-      sandbox.contentWindow.document.body.style[key] = props.bodyStyle[key]
+      sandbox.contentWindow.document.body.style[key] = props.bodyStyle[key]!
     }
   }
 
@@ -295,7 +295,7 @@ async function updatePreview() {
     const appEl = sandbox.contentWindow?.document.body.querySelector('#app') as HTMLElement
     if (appEl) {
       for (const key in props.appStyle) {
-        appEl.style[key] = props.appStyle[key]
+        appEl.style[key] = props.appStyle[key]!
       }
     }
   }
