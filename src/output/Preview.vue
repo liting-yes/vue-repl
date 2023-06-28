@@ -226,7 +226,7 @@ async function updatePreview() {
     )
 
     const codeToEval = [
-      `window.__modules__ = {};window.__css__ = '';` +
+      `window.__modules__ = {};window.__css__ = [];` +
         `if (window.__app__) window.__app__.unmount();` +
         (isSSR
           ? ``
@@ -234,7 +234,10 @@ async function updatePreview() {
               previewOptions?.bodyHTML || ''
             }\``),
       ...modules,
-      `setTimeout(()=> document.getElementById('__sfc-styles').innerHTML = window.__css__,1)`,
+      `setTimeout(()=> {
+        document.querySelectorAll('style[css]').forEach(el => el.remove())
+        document.head.insertAdjacentHTML('beforeend', window.__css__.map(s => \`<style css>\${s}</style>\`).join('\\n'))
+      }, 1)`,
     ]
 
     // if main file is a vue file, mount it.
@@ -267,6 +270,7 @@ async function updatePreview() {
     await proxy.eval(codeToEval)
     emits('update-preview', 'SUCCESS')
   } catch (e: any) {
+    console.error(e)
     runtimeError.value = (e as Error).message
     emits('update-preview', 'FAILURE')
   }

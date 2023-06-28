@@ -1,30 +1,21 @@
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    modelValue?: boolean
-  }>(),
-  {
-    modelValue: false,
-  }
-)
-
-defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-}>()
+const visible = defineModel<boolean>()
 </script>
+
 <template>
-  <div class="wrapper" @click="$emit('update:modelValue', !modelValue)">
+  <div class="wrapper" @click="visible = !visible">
     <span>Show Error</span>
     <div class="toggle" :class="[{ active: modelValue }]">
       <div class="indicator" />
     </div>
   </div>
 </template>
+
 <style scoped>
 .wrapper {
   position: absolute;
   bottom: 8px;
-  right: 12px;
+  right: 15px;
   z-index: 11;
   display: flex;
   align-items: center;
