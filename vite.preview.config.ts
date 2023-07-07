@@ -15,6 +15,11 @@ export default defineConfig({
       path: 'path-browserify',
     },
   },
+  build: {
+    commonjsOptions: {
+      ignore: ['typescript'],
+    },
+  },
   worker: {
     format: 'es',
     plugins: [
