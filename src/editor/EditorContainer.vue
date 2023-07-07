@@ -9,7 +9,7 @@ import type { EditorComponentType } from './types'
 
 const SHOW_ERROR_KEY = 'repl_show_error'
 
-interface Props {
+export interface Props {
   editorComponent: EditorComponentType
   hideFileSelector?: Boolean
 }
@@ -44,7 +44,7 @@ watch(showMessage, () => {
 </script>
 
 <template>
-  <FileSelector v-if="!hideFileSelector" />
+  <FileSelector v-if="!props.hideFileSelector" />
   <div class="editor-container">
     <props.editorComponent
       @change="onChange"
