@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import type { PreviewUpdateFlag, Store } from '../src'
-import { MonacoEditor, Preview, ReplStore, defaultMainFile } from '../src'
-import { computed, onMounted, provide, ref } from 'vue'
+import {
+  ExtendEditorContainer,
+  Preview,
+  ReplStore,
+  defaultMainFile,
+  importMapFile,
+} from '../src'
+import { computed, onMounted, provide, ref, toRef } from 'vue'
 import { useClipboard, useDebounceFn, useElementHover } from '@vueuse/core'
 import Copy from './icons/Copy.vue'
 import Copied from './icons/Copied.vue'
@@ -27,6 +33,8 @@ export interface Props {
       useCode?: string
     }
   }
+  importMap?: Record<string, string> | string
+  theme?: 'dark' | 'light'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -44,6 +52,7 @@ const props = withDefaults(defineProps<Props>(), {
       useCode: '',
     },
   }),
+  theme: 'light',
 })
 
 const { store } = props
@@ -61,19 +70,21 @@ const msg = ref('vite-plugin-vue-preview')
 </template>
 `.trim()
 
-if (!props.code) {
-  store.setFiles({
-    [defaultMainFile]: welcomeCode,
-  })
-} else if (props.encode) {
-  store.setFiles({
-    [defaultMainFile]: decodeURIComponent(props.code),
-  })
-} else {
-  store.setFiles({
-    [defaultMainFile]: props.code,
-  })
+const files: Record<string, string> = {}
+
+if (!props.code) files[defaultMainFile] = welcomeCode
+else if (props.encode) files[defaultMainFile] = decodeURIComponent(props.code)
+else files[defaultMainFile] = props.code
+
+if (props.importMap) {
+  const importMap =
+    typeof props.importMap === 'string'
+      ? JSON.parse(decodeURIComponent(props.importMap))
+      : props.importMap
+  files[importMapFile] = JSON.stringify({ imports: importMap }, null, 2)
 }
+
+store.setFiles(files)
 
 onMounted(() => {
   if (props.clearConsole)
@@ -96,6 +107,7 @@ provide('store', store)
 provide('autoresize', props.autoResize)
 provide('clear-console', props.clearConsole)
 provide('preview-options', props.previewOptions)
+provide('theme', toRef(props, 'theme'))
 
 const { copy, copied } = useClipboard({
   source: store.state.activeFile.code,
@@ -159,11 +171,7 @@ const isHover = useElementHover(vuePreviewContainerRef)
         </div>
       </Transition>
     </div>
-    <MonacoEditor
-      :value="store.state.activeFile.code"
-      :filename="store.state.activeFile.filename"
-      @change="onChange"
-    />
+    <ExtendEditorContainer />
   </div>
 </template>
 
@@ -252,6 +260,10 @@ const isHover = useElementHover(vuePreviewContainerRef)
     border-radius: 0 0 var(--vue-preview-radius) var(--vue-preview-radius);
     max-height: v-bind('maxHeightForCode');
     transition: max-height 0.3s;
+  }
+
+  .editor-container {
+    height: 400px;
   }
 }
 

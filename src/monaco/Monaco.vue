@@ -144,7 +144,7 @@ onMounted(async () => {
     const lineHeight = editorInstance.getOption(
       monaco.editor.EditorOption.lineHeight
     )
-    editorHeight.value = (lineCount + 1) * lineHeight + 'px'
+    editorHeight.value = lineCount * lineHeight + 'px'
   })
 
   updateEditorHeight()

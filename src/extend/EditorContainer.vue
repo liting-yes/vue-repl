@@ -1,17 +1,12 @@
 <script setup lang="ts">
-import FileSelector from './FileSelector.vue'
 import Message from '../Message.vue'
 import { debounce } from '../utils'
 import { inject, ref, watch } from 'vue'
 import { Store } from '../store'
-import MessageToggle from './MessageToggle.vue'
-import type { EditorComponentType } from './types'
+import MessageToggle from '../editor/MessageToggle.vue'
+import MonacoEditor from '../editor/MonacoEditor.vue'
 
 const SHOW_ERROR_KEY = 'repl_show_error'
-
-const props = defineProps<{
-  editorComponent: EditorComponentType
-}>()
 
 const store = inject('store') as Store
 const showMessage = ref(getItem())
@@ -35,9 +30,8 @@ watch(showMessage, () => {
 </script>
 
 <template>
-  <FileSelector />
   <div class="editor-container">
-    <props.editorComponent
+    <MonacoEditor
       @change="onChange"
       :value="store.state.activeFile.code"
       :filename="store.state.activeFile.filename"
@@ -49,7 +43,7 @@ watch(showMessage, () => {
 
 <style scoped>
 .editor-container {
-  height: calc(100% - var(--header-height));
+  height: 100%;
   overflow: hidden;
   position: relative;
 }
