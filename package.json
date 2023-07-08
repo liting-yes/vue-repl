@@ -1,6 +1,6 @@
 {
   "name": "@liting-yes/vue-repl",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Vue component for editing Vue components",
   "packageManager": "pnpm@8.6.5",
   "type": "module",
