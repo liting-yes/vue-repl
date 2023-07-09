@@ -6,10 +6,19 @@ import { Store } from '../store'
 import MessageToggle from '../editor/MessageToggle.vue'
 import MonacoEditor from '../editor/MonacoEditor.vue'
 
+export interface Props {
+  hideMessageToggle?: boolean
+  hideMessage?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  hideMessageToggle: false,
+})
+
 const SHOW_ERROR_KEY = 'repl_show_error'
 
 const store = inject('store') as Store
-const showMessage = ref(getItem())
+const showMessage = ref(props.hideMessage || getItem())
 
 const onChange = debounce((code: string) => {
   store.state.activeFile.code = code
@@ -37,7 +46,7 @@ watch(showMessage, () => {
       :filename="store.state.activeFile.filename"
     />
     <Message v-show="showMessage" :err="store.state.errors[0]" />
-    <MessageToggle v-model="showMessage" />
+    <MessageToggle v-if="!props.hideMessageToggle" v-model="showMessage" />
   </div>
 </template>
 

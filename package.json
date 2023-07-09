@@ -30,7 +30,7 @@
     "./dist/style.css": "./dist/style.css"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5555",
     "build": "vite build",
     "build-types": "vue-tsc -p tsconfig.build.json && api-extractor run -c api-extractor.json && node scripts/cleanup.js",
     "build-preview": "vite build -c vite.preview.config.ts",
